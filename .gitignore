@@ -1,15 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Assignment source docs (optional local only)
 *.pdf
-*.txt
 *.docx
 *.doc
 *.xls
 *.xlsx
 *.ppt
 *.pptx
-*.jpg
-*.jpeg
-*.png
-*.gif
-*.bmp
-*.tiff
-*.ico
