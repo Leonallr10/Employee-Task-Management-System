@@ -9,7 +9,15 @@ import api from "./axios";
 export async function fetchTasks(
   params: TaskListParams
 ): Promise<TasksListResponse> {
-  const { data } = await api.get<TasksListResponse>("/tasks", { params });
+  const cleanParams = Object.fromEntries(
+    Object.entries(params).filter(
+      ([, value]) => value !== "" && value !== undefined && value !== null
+    )
+  );
+
+  const { data } = await api.get<TasksListResponse>("/tasks", {
+    params: cleanParams,
+  });
   return data;
 }
 

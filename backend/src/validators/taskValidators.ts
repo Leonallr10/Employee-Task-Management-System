@@ -3,22 +3,25 @@ import { body, param, query } from "express-validator";
 const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
 export const listTaskValidators = [
-  query("page").optional().isInt({ min: 1 }).withMessage("Page must be a positive integer"),
+  query("page")
+    .optional({ values: "falsy" })
+    .isInt({ min: 1 })
+    .withMessage("Page must be a positive integer"),
   query("limit")
-    .optional()
+    .optional({ values: "falsy" })
     .isInt({ min: 1, max: 50 })
     .withMessage("Limit must be between 1 and 50"),
-  query("search").optional().isString(),
+  query("search").optional({ values: "falsy" }).isString(),
   query("status")
-    .optional()
+    .optional({ values: "falsy" })
     .isIn(["pending", "in_progress", "completed"])
     .withMessage("Invalid status filter"),
   query("priority")
-    .optional()
+    .optional({ values: "falsy" })
     .isIn(["low", "medium", "high"])
     .withMessage("Invalid priority filter"),
   query("sortBy")
-    .optional()
+    .optional({ values: "falsy" })
     .isIn([
       "title",
       "priority",
@@ -29,7 +32,7 @@ export const listTaskValidators = [
     ])
     .withMessage("Invalid sort field"),
   query("sortOrder")
-    .optional()
+    .optional({ values: "falsy" })
     .isIn(["asc", "desc"])
     .withMessage("Sort order must be asc or desc"),
 ];
