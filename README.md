@@ -73,6 +73,17 @@ npm run dev
 
 App runs at `http://localhost:5173`.
 
+## Features
+
+### Dashboard
+- **Admin:** total employees, total tasks, completed tasks, pending tasks
+- **Employee:** my tasks, completed, pending, overdue tasks
+
+### Employee Management (Admin only)
+- Add, edit, delete employees
+- Search, sort, and paginate
+- Fields: Name, Email, Department, Designation (plus initial password on create)
+
 ## Auth API
 
 | Method | Endpoint | Description |
@@ -81,6 +92,16 @@ App runs at `http://localhost:5173`.
 | POST | `/api/auth/login` | Login (optional `rememberMe`) |
 | POST | `/api/auth/logout` | Logout and clear cookie |
 | GET | `/api/auth/me` | Current user (JWT required) |
+
+## Dashboard & Employees API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/dashboard` | Role-based dashboard stats |
+| GET | `/api/employees` | List employees (`search`, `sortBy`, `sortOrder`, `page`, `limit`) |
+| POST | `/api/employees` | Create employee (admin) |
+| PUT | `/api/employees/:id` | Update employee (admin) |
+| DELETE | `/api/employees/:id` | Delete employee (admin) |
 
 ### Register body
 

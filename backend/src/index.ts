@@ -6,7 +6,10 @@ import morgan from "morgan";
 import { connectDatabase } from "./config/database";
 import { env } from "./config/env";
 import { errorHandler } from "./middleware/errorHandler";
+import "./models";
 import authRoutes from "./routes/authRoutes";
+import dashboardRoutes from "./routes/dashboardRoutes";
+import employeeRoutes from "./routes/employeeRoutes";
 
 async function bootstrap() {
   const app = express();
@@ -27,6 +30,8 @@ async function bootstrap() {
   });
 
   app.use("/api/auth", authRoutes);
+  app.use("/api/dashboard", dashboardRoutes);
+  app.use("/api/employees", employeeRoutes);
 
   app.use(errorHandler);
 
