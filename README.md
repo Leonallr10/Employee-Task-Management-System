@@ -84,6 +84,18 @@ App runs at `http://localhost:5173`.
 - Search, sort, and paginate
 - Fields: Name, Email, Department, Designation (plus initial password on create)
 
+### Task Management
+- Create, update, delete, and view tasks
+- Fields: Title, Description, Priority, Status, Start Date, Due Date, Assigned Employee
+- Due date cannot be earlier than start date
+- Completed tasks cannot be edited
+- Employees see only their own tasks; admins see all tasks
+
+### Notifications
+- Task assigned
+- Task due within one day
+- Task marked complete
+
 ## Auth API
 
 | Method | Endpoint | Description |
@@ -102,6 +114,18 @@ App runs at `http://localhost:5173`.
 | POST | `/api/employees` | Create employee (admin) |
 | PUT | `/api/employees/:id` | Update employee (admin) |
 | DELETE | `/api/employees/:id` | Delete employee (admin) |
+
+## Tasks & Notifications API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/tasks` | List tasks (role-scoped) |
+| POST | `/api/tasks` | Create task |
+| PUT | `/api/tasks/:id` | Update task (blocked if completed) |
+| DELETE | `/api/tasks/:id` | Delete task |
+| GET | `/api/notifications` | List notifications (also creates due-soon alerts) |
+| PATCH | `/api/notifications/:id/read` | Mark one notification read |
+| PATCH | `/api/notifications/read-all` | Mark all notifications read |
 
 ### Register body
 

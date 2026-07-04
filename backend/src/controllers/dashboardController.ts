@@ -22,7 +22,7 @@ export async function getDashboardStats(
         User.count({ where: { role: "employee" } }),
         Task.count(),
         Task.count({ where: { status: "completed" } }),
-        Task.count({ where: { status: "pending" } }),
+        Task.count({ where: { status: { [Op.ne]: "completed" } } }),
       ]);
 
     res.status(200).json({
@@ -48,12 +48,15 @@ export async function getDashboardStats(
         where: { assignedToId: employeeId, status: "completed" },
       }),
       Task.count({
-        where: { assignedToId: employeeId, status: "pending" },
+        where: {
+          assignedToId: employeeId,
+          status: { [Op.ne]: "completed" },
+        },
       }),
       Task.count({
         where: {
           assignedToId: employeeId,
-          status: "pending",
+          status: { [Op.ne]: "completed" },
           dueDate: { [Op.lt]: today },
         },
       }),

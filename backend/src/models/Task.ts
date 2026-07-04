@@ -10,7 +10,8 @@ import {
 import { sequelize } from "../config/database";
 import type { User } from "./User";
 
-export type TaskStatus = "pending" | "completed";
+export type TaskStatus = "pending" | "in_progress" | "completed";
+export type TaskPriority = "low" | "medium" | "high";
 
 export class Task extends Model<
   InferAttributes<Task>,
@@ -19,8 +20,10 @@ export class Task extends Model<
   declare id: CreationOptional<number>;
   declare title: string;
   declare description: CreationOptional<string | null>;
+  declare priority: CreationOptional<TaskPriority>;
   declare status: CreationOptional<TaskStatus>;
-  declare dueDate: Date;
+  declare startDate: Date | string;
+  declare dueDate: Date | string;
   declare assignedToId: ForeignKey<User["id"]>;
   declare createdById: ForeignKey<User["id"]>;
   declare createdAt: CreationOptional<Date>;
@@ -28,6 +31,38 @@ export class Task extends Model<
 
   declare assignee?: NonAttribute<User>;
   declare creator?: NonAttribute<User>;
+
+  toJSON() {
+    return {
+      id: this.id,
+      title: this.title,
+      description: this.description,
+      priority: this.priority,
+      status: this.status,
+      startDate: this.startDate,
+      dueDate: this.dueDate,
+      assignedToId: this.assignedToId,
+      createdById: this.createdById,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      assignee: this.assignee
+        ? {
+            id: this.assignee.id,
+            fullName: this.assignee.fullName,
+            email: this.assignee.email,
+            department: this.assignee.department,
+            designation: this.assignee.designation,
+          }
+        : undefined,
+      creator: this.creator
+        ? {
+            id: this.creator.id,
+            fullName: this.creator.fullName,
+            email: this.creator.email,
+          }
+        : undefined,
+    };
+  }
 }
 
 Task.init(
@@ -45,10 +80,20 @@ Task.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    priority: {
+      type: DataTypes.ENUM("low", "medium", "high"),
+      allowNull: false,
+      defaultValue: "medium",
+    },
     status: {
-      type: DataTypes.ENUM("pending", "completed"),
+      type: DataTypes.ENUM("pending", "in_progress", "completed"),
       allowNull: false,
       defaultValue: "pending",
+    },
+    startDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: false,
+      field: "start_date",
     },
     dueDate: {
       type: DataTypes.DATEONLY,

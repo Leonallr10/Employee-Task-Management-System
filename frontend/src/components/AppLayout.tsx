@@ -2,6 +2,7 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { logout } from "../store/authSlice";
+import NotificationBell from "./NotificationBell";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   [
@@ -37,9 +38,12 @@ export default function AppLayout() {
               </p>
             </div>
 
-            <nav className="flex items-center gap-1">
+            <nav className="flex flex-wrap items-center gap-1">
               <NavLink to="/dashboard" className={linkClass}>
                 Dashboard
+              </NavLink>
+              <NavLink to="/tasks" className={linkClass}>
+                Tasks
               </NavLink>
               {user?.role === "admin" && (
                 <NavLink to="/employees" className={linkClass}>
@@ -49,13 +53,16 @@ export default function AppLayout() {
             </nav>
           </div>
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-          >
-            Logout
-          </button>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 

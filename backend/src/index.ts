@@ -10,6 +10,8 @@ import "./models";
 import authRoutes from "./routes/authRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import employeeRoutes from "./routes/employeeRoutes";
+import notificationRoutes from "./routes/notificationRoutes";
+import taskRoutes from "./routes/taskRoutes";
 
 async function bootstrap() {
   const app = express();
@@ -32,6 +34,8 @@ async function bootstrap() {
   app.use("/api/auth", authRoutes);
   app.use("/api/dashboard", dashboardRoutes);
   app.use("/api/employees", employeeRoutes);
+  app.use("/api/tasks", taskRoutes);
+  app.use("/api/notifications", notificationRoutes);
 
   app.use(errorHandler);
 
