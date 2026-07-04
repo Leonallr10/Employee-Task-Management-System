@@ -10,6 +10,7 @@ import DashboardPage from "./pages/DashboardPage";
 import EmployeesPage from "./pages/EmployeesPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import ReportsPage from "./pages/ReportsPage";
 import TasksPage from "./pages/TasksPage";
 import { loadCurrentUser } from "./store/authSlice";
 
@@ -36,6 +37,7 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/tasks" element={<TasksPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
             <Route element={<AdminRoute />}>
               <Route path="/employees" element={<EmployeesPage />} />
             </Route>

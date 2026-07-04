@@ -1,8 +1,11 @@
+import fs from "fs";
+import path from "path";
 import { Op, type WhereOptions } from "sequelize";
 import type { Response } from "express";
+import { UPLOAD_DIR } from "../config/upload";
 import type { AuthRequest } from "../middleware/auth";
 import { AppError } from "../middleware/errorHandler";
-import { Task, User } from "../models";
+import { Task, TaskAttachment, User } from "../models";
 import type { TaskPriority, TaskStatus } from "../models";
 import {
   notifyTaskAssigned,
@@ -30,6 +33,10 @@ const taskInclude = [
     model: User,
     as: "creator",
     attributes: ["id", "fullName", "email"],
+  },
+  {
+    model: TaskAttachment,
+    as: "attachments",
   },
 ];
 
@@ -293,6 +300,13 @@ export async function deleteTask(
 
   if (req.user.role !== "admin" && task.assignedToId !== req.user.id) {
     throw new AppError("You do not have permission to delete this task", 403);
+  }
+
+  for (const attachment of task.attachments ?? []) {
+    const filePath = path.join(UPLOAD_DIR, attachment.fileName);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
   }
 
   await task.destroy();

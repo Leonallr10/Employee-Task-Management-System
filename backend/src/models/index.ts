@@ -1,5 +1,6 @@
 import { Notification } from "./Notification";
 import { Task } from "./Task";
+import { TaskAttachment } from "./TaskAttachment";
 import { User } from "./User";
 
 User.hasMany(Task, {
@@ -50,7 +51,31 @@ Notification.belongsTo(Task, {
   onDelete: "CASCADE",
 });
 
-export { Notification, Task, User };
+Task.hasMany(TaskAttachment, {
+  foreignKey: "taskId",
+  as: "attachments",
+  onDelete: "CASCADE",
+});
+
+TaskAttachment.belongsTo(Task, {
+  foreignKey: "taskId",
+  as: "task",
+  onDelete: "CASCADE",
+});
+
+User.hasMany(TaskAttachment, {
+  foreignKey: "uploadedById",
+  as: "uploadedAttachments",
+  onDelete: "CASCADE",
+});
+
+TaskAttachment.belongsTo(User, {
+  foreignKey: "uploadedById",
+  as: "uploader",
+  onDelete: "CASCADE",
+});
+
+export { Notification, Task, TaskAttachment, User };
 export type { NotificationType } from "./Notification";
 export type { TaskPriority, TaskStatus } from "./Task";
 export type { UserRole } from "./User";

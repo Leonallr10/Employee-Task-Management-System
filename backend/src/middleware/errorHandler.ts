@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
+import multer from "multer";
 import { ValidationError as SequelizeValidationError } from "sequelize";
 
 export class AppError extends Error {
@@ -18,6 +19,22 @@ export function errorHandler(
 ): void {
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
+      success: false,
+      message: err.message,
+    });
+    return;
+  }
+
+  if (err instanceof multer.MulterError) {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      res.status(400).json({
+        success: false,
+        message: "File size must be 5 MB or less",
+      });
+      return;
+    }
+
+    res.status(400).json({
       success: false,
       message: err.message,
     });

@@ -6,6 +6,9 @@ dist/
 build/
 *.tsbuildinfo
 
+# Uploaded files
+backend/uploads/
+
 # Environment
 .env
 .env.local

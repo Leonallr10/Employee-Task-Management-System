@@ -9,6 +9,18 @@ export interface TaskAssignee {
   designation?: string | null;
 }
 
+export interface TaskAttachment {
+  id: number;
+  taskId: number;
+  uploadedById: number;
+  originalName: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Task {
   id: number;
   title: string;
@@ -27,6 +39,7 @@ export interface Task {
     fullName: string;
     email: string;
   };
+  attachments?: TaskAttachment[];
 }
 
 export interface TaskFormValues {
@@ -57,6 +70,14 @@ export interface TaskResponse {
   message?: string;
   data: {
     task: Task;
+  };
+}
+
+export interface AttachmentResponse {
+  success: boolean;
+  message?: string;
+  data: {
+    attachment: TaskAttachment;
   };
 }
 

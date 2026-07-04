@@ -1,14 +1,29 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ChangeEvent } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { fetchEmployees } from "../api/employees";
-import { createTask, deleteTask, fetchTasks, updateTask } from "../api/tasks";
+import {
+  createTask,
+  deleteTask,
+  deleteTaskAttachment,
+  downloadTaskAttachment,
+  fetchTasks,
+  updateTask,
+  uploadTaskAttachment,
+} from "../api/tasks";
 import { useAppSelector } from "../hooks/redux";
 import type { Employee } from "../types/employee";
 import type { Task, TaskPriority, TaskStatus } from "../types/task";
 import { getErrorMessage } from "../utils/errors";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+];
 
 const taskSchema = z
   .object({
@@ -69,6 +84,8 @@ export default function TasksPage() {
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [filesTask, setFilesTask] = useState<Task | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const {
     register,
@@ -231,6 +248,97 @@ export default function TasksPage() {
     }
   };
 
+  const openFilesModal = (task: Task) => {
+    setFilesTask(task);
+  };
+
+  const refreshFilesTask = async (taskId: number) => {
+    const response = await fetchTasks({
+      page,
+      limit: 8,
+      search,
+      status: statusFilter,
+      priority: priorityFilter,
+      sortBy: "dueDate",
+      sortOrder: "asc",
+    });
+    setTasks(response.data.tasks);
+    const updated = response.data.tasks.find((task) => task.id === taskId);
+    if (updated) {
+      setFilesTask(updated);
+    }
+  };
+
+  const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!filesTask || !file) {
+      return;
+    }
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error("Only PDF, JPG, and PNG files are allowed");
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("File size must be 5 MB or less");
+      return;
+    }
+
+    try {
+      setUploading(true);
+      await uploadTaskAttachment(filesTask.id, file);
+      toast.success("File uploaded successfully");
+      await refreshFilesTask(filesTask.id);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to upload file"));
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDownloadAttachment = async (
+    taskId: number,
+    attachmentId: number,
+    originalName: string
+  ) => {
+    try {
+      await downloadTaskAttachment(taskId, attachmentId, originalName);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to download file"));
+    }
+  };
+
+  const handleDeleteAttachment = async (
+    taskId: number,
+    attachmentId: number
+  ) => {
+    const confirmed = window.confirm("Delete this attachment?");
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await deleteTaskAttachment(taskId, attachmentId);
+      toast.success("Attachment deleted");
+      await refreshFilesTask(taskId);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Failed to delete attachment"));
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) {
+      return `${bytes} B`;
+    }
+    if (bytes < 1024 * 1024) {
+      return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -355,7 +463,14 @@ export default function TasksPage() {
                         {task.assignee?.fullName ?? "—"}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openFilesModal(task)}
+                            className="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-white"
+                          >
+                            Files ({task.attachments?.length ?? 0})
+                          </button>
                           <button
                             type="button"
                             disabled={isCompleted}
@@ -571,6 +686,93 @@ export default function TasksPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {filesTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
+          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Task Files
+                </h2>
+                <p className="text-sm text-slate-500">{filesTask.title}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFilesTask(null)}
+                className="text-sm text-slate-500 hover:text-slate-800"
+              >
+                Close
+              </button>
+            </div>
+
+            <label className="mb-4 flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center hover:bg-slate-100">
+              <span className="text-sm font-medium text-slate-700">
+                {uploading ? "Uploading..." : "Upload PDF, JPG, or PNG"}
+              </span>
+              <span className="mt-1 text-xs text-slate-500">Max size 5 MB</span>
+              <input
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                className="hidden"
+                disabled={uploading}
+                onChange={(event) => void handleUpload(event)}
+              />
+            </label>
+
+            <div className="space-y-2">
+              {(filesTask.attachments?.length ?? 0) === 0 && (
+                <p className="py-4 text-center text-sm text-slate-500">
+                  No files uploaded yet.
+                </p>
+              )}
+
+              {filesTask.attachments?.map((attachment) => (
+                <div
+                  key={attachment.id}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-3 py-2"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium text-slate-800">
+                      {attachment.originalName}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {formatFileSize(attachment.size)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void handleDownloadAttachment(
+                          filesTask.id,
+                          attachment.id,
+                          attachment.originalName
+                        )
+                      }
+                      className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700"
+                    >
+                      Download
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void handleDeleteAttachment(
+                          filesTask.id,
+                          attachment.id
+                        )
+                      }
+                      className="rounded-md border border-rose-200 px-2 py-1 text-xs font-medium text-rose-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

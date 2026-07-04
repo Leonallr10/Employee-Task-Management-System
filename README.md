@@ -96,6 +96,13 @@ App runs at `http://localhost:5173`.
 - Task due within one day
 - Task marked complete
 
+### File Upload
+- Attach PDF, JPG, or PNG files to tasks (max 5 MB)
+
+### Reports
+- Completed Tasks, Pending Tasks, and Employee-wise Task reports
+- Export to Excel (`.xlsx`) and CSV
+
 ## Auth API
 
 | Method | Endpoint | Description |
@@ -115,15 +122,18 @@ App runs at `http://localhost:5173`.
 | PUT | `/api/employees/:id` | Update employee (admin) |
 | DELETE | `/api/employees/:id` | Delete employee (admin) |
 
-## Tasks & Notifications API
+## Tasks, Files, Reports & Notifications API
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/tasks` | List tasks (role-scoped) |
-| POST | `/api/tasks` | Create task |
-| PUT | `/api/tasks/:id` | Update task (blocked if completed) |
-| DELETE | `/api/tasks/:id` | Delete task |
-| GET | `/api/notifications` | List notifications (also creates due-soon alerts) |
+| POST | `/api/register`, `/api/login` | Auth aliases (also under `/api/auth`) |
+| GET/POST/PUT/DELETE | `/api/employees` | Employee CRUD (admin) |
+| GET/POST/PUT/DELETE | `/api/tasks` | Task CRUD |
+| POST | `/api/tasks/:id/attachments` | Upload PDF/JPG/PNG (max 5 MB) |
+| GET | `/api/tasks/:id/attachments/:attachmentId/download` | Download file |
+| DELETE | `/api/tasks/:id/attachments/:attachmentId` | Delete file |
+| GET | `/api/reports?type=&format=` | Reports (`completed`, `pending`, `employee`; `json`, `csv`, `xlsx`) |
+| GET | `/api/notifications` | List notifications |
 | PATCH | `/api/notifications/:id/read` | Mark one notification read |
 | PATCH | `/api/notifications/read-all` | Mark all notifications read |
 

@@ -5,18 +5,22 @@ import helmet from "helmet";
 import morgan from "morgan";
 import { connectDatabase } from "./config/database";
 import { env } from "./config/env";
+import { ensureUploadDir } from "./config/upload";
 import { errorHandler } from "./middleware/errorHandler";
 import "./models";
 import authRoutes from "./routes/authRoutes";
 import dashboardRoutes from "./routes/dashboardRoutes";
 import employeeRoutes from "./routes/employeeRoutes";
 import notificationRoutes from "./routes/notificationRoutes";
+import reportRoutes from "./routes/reportRoutes";
 import taskRoutes from "./routes/taskRoutes";
 
 async function bootstrap() {
+  ensureUploadDir();
+
   const app = express();
 
-  app.use(helmet());
+  app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
   app.use(
     cors({
       origin: env.clientUrl,
@@ -31,11 +35,14 @@ async function bootstrap() {
     res.json({ success: true, message: "API is running" });
   });
 
+  // Assignment-style aliases: POST /api/register, POST /api/login
+  app.use("/api", authRoutes);
   app.use("/api/auth", authRoutes);
   app.use("/api/dashboard", dashboardRoutes);
   app.use("/api/employees", employeeRoutes);
   app.use("/api/tasks", taskRoutes);
   app.use("/api/notifications", notificationRoutes);
+  app.use("/api/reports", reportRoutes);
 
   app.use(errorHandler);
 

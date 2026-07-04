@@ -8,6 +8,7 @@ import {
   NonAttribute,
 } from "sequelize";
 import { sequelize } from "../config/database";
+import type { TaskAttachment } from "./TaskAttachment";
 import type { User } from "./User";
 
 export type TaskStatus = "pending" | "in_progress" | "completed";
@@ -31,6 +32,7 @@ export class Task extends Model<
 
   declare assignee?: NonAttribute<User>;
   declare creator?: NonAttribute<User>;
+  declare attachments?: NonAttribute<TaskAttachment[]>;
 
   toJSON() {
     return {
@@ -61,6 +63,7 @@ export class Task extends Model<
             email: this.creator.email,
           }
         : undefined,
+      attachments: this.attachments?.map((attachment) => attachment.toJSON()) ?? [],
     };
   }
 }

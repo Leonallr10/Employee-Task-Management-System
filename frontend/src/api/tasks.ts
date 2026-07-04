@@ -1,4 +1,5 @@
 import type {
+  AttachmentResponse,
   TaskFormValues,
   TaskListParams,
   TaskResponse,
@@ -38,4 +39,44 @@ export async function updateTask(
 
 export async function deleteTask(id: number): Promise<void> {
   await api.delete(`/tasks/${id}`);
+}
+
+export async function uploadTaskAttachment(
+  taskId: number,
+  file: File
+): Promise<AttachmentResponse> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post<AttachmentResponse>(
+    `/tasks/${taskId}/attachments`,
+    formData
+  );
+  return data;
+}
+
+export async function downloadTaskAttachment(
+  taskId: number,
+  attachmentId: number,
+  originalName: string
+): Promise<void> {
+  const response = await api.get(
+    `/tasks/${taskId}/attachments/${attachmentId}/download`,
+    { responseType: "blob" }
+  );
+
+  const url = window.URL.createObjectURL(response.data);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = originalName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+}
+
+export async function deleteTaskAttachment(
+  taskId: number,
+  attachmentId: number
+): Promise<void> {
+  await api.delete(`/tasks/${taskId}/attachments/${attachmentId}`);
 }
