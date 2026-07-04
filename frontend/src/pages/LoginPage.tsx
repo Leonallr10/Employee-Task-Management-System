@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import AuthLayout from "../components/AuthLayout";
+import PasswordInput from "../components/PasswordInput";
 import { useAppDispatch, useAppSelector } from "../hooks/redux";
 import { clearAuthError, login } from "../store/authSlice";
 
@@ -16,7 +17,9 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
+  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
+
+const fieldInputClass = `mt-1 ${inputClass}`;
 
 const labelClass = "block text-sm font-medium text-slate-700";
 
@@ -67,7 +70,7 @@ export default function LoginPage() {
             id="email"
             type="email"
             autoComplete="email"
-            className={inputClass}
+            className={fieldInputClass}
             {...register("email")}
           />
           {errors.email && (
@@ -79,9 +82,8 @@ export default function LoginPage() {
           <label htmlFor="password" className={labelClass}>
             Password
           </label>
-          <input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
             className={inputClass}
             {...register("password")}

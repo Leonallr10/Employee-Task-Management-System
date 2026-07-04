@@ -9,6 +9,7 @@ import {
   fetchEmployees,
   updateEmployee,
 } from "../api/employees";
+import PasswordInput from "../components/PasswordInput";
 import type { Employee } from "../types/employee";
 
 const passwordRule = z
@@ -57,7 +58,9 @@ const employeeSchema = z
 type EmployeeFormValues = z.infer<typeof employeeSchema>;
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
+  "w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100";
+
+const fieldInputClass = `mt-1 ${inputClass}`;
 
 const labelClass = "block text-sm font-medium text-slate-700";
 
@@ -423,7 +426,7 @@ export default function EmployeesPage() {
                 </label>
                 <input
                   id="fullName"
-                  className={inputClass}
+                  className={fieldInputClass}
                   {...register("fullName")}
                 />
                 {errors.fullName && (
@@ -440,7 +443,7 @@ export default function EmployeesPage() {
                 <input
                   id="email"
                   type="email"
-                  className={inputClass}
+                  className={fieldInputClass}
                   {...register("email")}
                 />
                 {errors.email && (
@@ -456,7 +459,7 @@ export default function EmployeesPage() {
                 </label>
                 <input
                   id="department"
-                  className={inputClass}
+                  className={fieldInputClass}
                   {...register("department")}
                 />
                 {errors.department && (
@@ -472,7 +475,7 @@ export default function EmployeesPage() {
                 </label>
                 <input
                   id="designation"
-                  className={inputClass}
+                  className={fieldInputClass}
                   {...register("designation")}
                 />
                 {errors.designation && (
@@ -488,9 +491,8 @@ export default function EmployeesPage() {
                     ? "Password (optional)"
                     : "Password"}
                 </label>
-                <input
+                <PasswordInput
                   id="password"
-                  type="password"
                   className={inputClass}
                   {...register("password")}
                 />
